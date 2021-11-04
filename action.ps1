@@ -369,7 +369,7 @@ function Publish-ToGist {
         #}
     }
 
-
+# Creating Coverage Badges
 
     $gistFiles = @{
         $reportGistName = @{
@@ -445,6 +445,9 @@ function Publish-ToGist {
         }
     }
 
+
+#Publishing Test Results to GIST
+
     if (-not $reportGist) {
         Write-ActionInfo "Creating initial Tests Report Gist"
         $createGistResp = Invoke-WebRequest -Headers $apiHeaders -Uri $gistsApiUrl -Method Post -Body (@{
@@ -467,6 +470,7 @@ function Publish-ToGist {
 }
 
 
+# 
 
 if ($test_results_path) {
     Set-ActionOutput -Name test_results_path -Value $test_results_path
@@ -502,3 +506,9 @@ if ($stepShouldFail) {
     Write-ActionInfo "Thowing error as ne or more tests failed and 'tests_fail_step' was true."
     throw "One or more tests failed."
 }
+
+
+
+# Publish Coverage Report to Check Run as Check Suite
+
+

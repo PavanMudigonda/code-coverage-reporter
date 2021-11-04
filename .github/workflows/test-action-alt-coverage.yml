@@ -1,0 +1,26 @@
+
+name: test-action-alt
+
+on:
+  push:
+  release:
+    types: published
+
+jobs:
+
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v1
+
+
+      - name: use this action, with existing test results
+        id: testAction3
+        uses: ./
+        with:
+          coverage_results_path: jacoco-report/example.jacoco.xml
+          report_name: Jacoco-code-coverage
+          report_title: Jacco code coverage
+          github_token: ${{ secrets.GITHUB_TOKEN }}
