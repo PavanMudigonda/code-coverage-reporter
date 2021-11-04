@@ -14,6 +14,7 @@ $modulesToInstall | ForEach-Object {
     }
 }
 
+
 ## Import dependencies
 Import-Module GitHubActions -Force
 Import-Module Pester -Force
@@ -23,6 +24,7 @@ Write-ActionInfo "Running from [$($PSScriptRoot)]"
 function splitListInput { $args[0] -split ',' | % { $_.Trim() } }
 function writeListInput { $args[0] | % { Write-ActionInfo "    - $_" } }
 
+# Input Parameters
 
 $inputs = @{
     test_results_path  = Get-ActionInput test_results_path
@@ -48,11 +50,17 @@ $inputs = @{
     tests_fail_step    = Get-ActionInput tests_fail_step
 }
 
+#Creating test results space 
+
 $test_results_dir = Join-Path $PWD _TMP
 Write-ActionInfo "Creating test results space"
 if (-not (Test-Path -Path $test_results_dir -PathType Container)) {
     mkdir $test_results_dir
 }
+
+# If Test Results Path provided as input, skip Pester tests
+# If Pester Result CLIXML provided as input; load them up"
+# Else Run Pester tests
 
 $test_results_path = $inputs.test_results_path
 if ($test_results_path) {
@@ -101,14 +109,14 @@ else {
     if ($include_tags) {
         Write-ActionInfo "  * include_tags:"
         writeListInput $include_tags
-        $pesterConfig.Filter.Tag = $include_tags    
+        $pesterConfig.Filter.Tag = $include_tags
     }
     else { Write-ActionInfo "  * Default include_tags"}
     
     if ($exclude_tags) {
         Write-ActionInfo "  * exclude_tags:"
         writeListInput $exclude_tags
-        $pesterConfig.Filter.ExcludeTag = $exclude_tags    
+        $pesterConfig.Filter.ExcludeTag = $exclude_tags
     }
     else { Write-ActionInfo "  * Default exclude_tags"}
 
@@ -133,6 +141,8 @@ else {
     if ($inputs.tests_fail_step) {
         Write-ActionInfo "  * tests_fail_step: true"
     }
+
+    # Build Path for NUNIT XML Report
 
     $test_results_path = Join-Path $test_results_dir test-results.nunit.xml
 
@@ -174,6 +184,7 @@ else {
     Set-ActionOutput -Name failed_count -Value ($pesterResult.FailedCount)
 }
 
+# Function for Resolving Escape Tokens
 function Resolve-EscapeTokens {
     param(
         [object]$Message,
@@ -211,6 +222,8 @@ function Resolve-EscapeTokens {
     $m
 }
 
+# Function for building markdown reports - Test Results File
+
 function Build-MarkdownReport {
     $script:report_name = $inputs.report_name
     $script:report_title = $inputs.report_title
@@ -229,6 +242,8 @@ function Build-MarkdownReport {
             reportTitle = $script:report_title
         }
 }
+
+# Function for building markdown reports - Test Coverage Results File
 
 function Build-CoverageReport {
     Write-ActionInfo "Building human-readable code-coverage report"
@@ -251,6 +266,8 @@ function Build-CoverageReport {
 
     & "$PSScriptRoot/jacoco-report/embedmissedlines.ps1" -mdFile $script:coverage_report_path
 }
+
+# Function for Publishing Test Results File to Check Run as Check Suite
 
 function Publish-ToCheckRun {
     param(
@@ -303,6 +320,10 @@ function Publish-ToCheckRun {
     Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
 }
 
+
+# Function for Publishing Coverage Results File to GIST
+
+
 function Publish-ToGist {
     param(
         [string]$reportData,
@@ -347,6 +368,8 @@ function Publish-ToGist {
         #    Write-Information "Got existing Tests Report"
         #}
     }
+
+
 
     $gistFiles = @{
         $reportGistName = @{
@@ -442,6 +465,8 @@ function Publish-ToGist {
         Write-ActionInfo "Update Response: $updateGistResp"
     }
 }
+
+
 
 if ($test_results_path) {
     Set-ActionOutput -Name test_results_path -Value $test_results_path
