@@ -473,14 +473,49 @@ function Publish-ToGist {
 }
 
 
-# 
+# Commenting out
 
-if ($test_results_path) {
-    Set-ActionOutput -Name test_results_path -Value $test_results_path
+# if ($test_results_path) {
+#     Set-ActionOutput -Name test_results_path -Value $test_results_path
 
-    Build-MarkdownReport
+#     Build-MarkdownReport
 
-    $reportData = [System.IO.File]::ReadAllText($test_report_path)
+#     $reportData = [System.IO.File]::ReadAllText($test_report_path)
+
+#     if ($coverage_results_path) {
+#         Set-ActionOutput -Name coverage_results_path -Value $coverage_results_path
+
+#         Build-CoverageReport
+
+#         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+#     }
+
+#     if ($inputs.skip_check_run -ne $true) {
+#         Publish-ToCheckRun -ReportData $reportData -ReportName $report_name -ReportTitle $report_title
+#         if ($coverage_results_path) {
+#             Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
+#         }
+#     }
+#     if ($inputs.gist_name -and $inputs.gist_token) {
+#         if ($inputs.coverage_gist) {
+#             Publish-ToGist -ReportData $reportData -CoverageData $coverageSummaryData
+#         } else {
+#             Publish-ToGist -ReportData $reportData
+#         }
+#     }
+# }
+
+# if ($stepShouldFail) {
+#     Write-ActionInfo "Thowing error as ne or more tests failed and 'tests_fail_step' was true."
+#     throw "One or more tests failed."
+# }
+
+
+
+# Publish Coverage Report to Check Run as Check Suite
+
+
+
 
     if ($coverage_results_path) {
         Set-ActionOutput -Name coverage_results_path -Value $coverage_results_path
@@ -496,22 +531,9 @@ if ($test_results_path) {
             Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
         }
     }
-    if ($inputs.gist_name -and $inputs.gist_token) {
-        if ($inputs.coverage_gist) {
-            Publish-ToGist -ReportData $reportData -CoverageData $coverageSummaryData
-        } else {
-            Publish-ToGist -ReportData $reportData
-        }
-    }
-}
+
 
 if ($stepShouldFail) {
-    Write-ActionInfo "Thowing error as ne or more tests failed and 'tests_fail_step' was true."
-    throw "One or more tests failed."
+    Write-ActionInfo "Thowing error as coverage is less than 80%."
+    throw "Code Coverage not met minimum requirements"
 }
-
-
-
-# Publish Coverage Report to Check Run as Check Suite
-
-
