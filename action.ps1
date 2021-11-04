@@ -581,6 +581,7 @@ function Publish-ToCheckRun {
         Build-CoverageReport
 
         $coverageSummaryData = [System.IO.File]::ReadAllText($coverage_report_path)
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
     }
 
     if ($inputs.skip_check_run -ne $true) {
