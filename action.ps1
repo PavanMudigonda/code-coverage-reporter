@@ -260,7 +260,7 @@ function Build-CoverageReport {
         $script:coverage_report_title = $report_name
     }
 
-    $script:coverage_report_path = Join-Path $test_results_dir coverage-results.md
+    $script:coverage_report_path = Join-Path $test_results_dir jacoco-report/example-jacoco.md
     & "$PSScriptRoot/jacoco-report/jacocoxml2md.ps1" -Verbose `
         -xmlFile $script:coverage_results_path `
         -mdFile $script:coverage_report_path -xslParams @{
@@ -517,8 +517,8 @@ function Publish-ToGist {
 
 
 
-    if ($coverage_results_path) {
-        Set-ActionOutput -Name coverage_results_path -Value $coverage_results_path
+    if ($code_coverage_file_path) {
+        Set-ActionOutput -Name coverage_results_path -Value $code_coverage_file_path
 
         Build-CoverageReport
 
