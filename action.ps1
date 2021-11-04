@@ -50,6 +50,7 @@ $inputs = @{
     tests_fail_step    = Get-ActionInput tests_fail_step
     code_coverage_file_path = Get-ActionInput code_coverage_file_path
     code_coverage_provider = Get-ActionInput code_coverage_provider
+    pester = false
 
 }
 
@@ -75,7 +76,7 @@ if ($test_results_path) {
         Write-ActionInfo "Pester Result CLIXML provided as input; loaded"
     }
 }
-else {
+if ($pester) {
     $full_names_filters = splitListInput $inputs.full_names_filters
     $include_paths      = splitListInput $inputs.include_paths
     $exclude_paths      = splitListInput $inputs.exclude_paths
@@ -324,6 +325,8 @@ function Publish-ToCheckRun {
 }
 
 
+
+
 # Function for Publishing Coverage Results File to GIST
 
 
@@ -471,6 +474,61 @@ function Publish-ToGist {
         Write-ActionInfo "Update Response: $updateGistResp"
     }
 }
+
+
+# Function for Publishing Coverage Results File to Check Run as Check Suite
+
+function Publish-ToCheckRun {
+    param(
+        [string]$CoverageReportData,
+        [string]$reportName,
+        [string]$reportTitle
+    )
+
+    Write-ActionInfo "Publishing Report to GH Workflow"
+
+    $ghToken = $inputs.github_token
+    $ctx = Get-ActionContext
+    $repo = Get-ActionRepo
+    $repoFullName = "$($repo.Owner)/$($repo.Repo)"
+
+    Write-ActionInfo "Resolving REF"
+    $ref = $ctx.Sha
+    if ($ctx.EventName -eq 'pull_request') {
+        Write-ActionInfo "Resolving PR REF"
+        $ref = $ctx.Payload.pull_request.head.sha
+        if (-not $ref) {
+            Write-ActionInfo "Resolving PR REF as AFTER"
+            $ref = $ctx.Payload.after
+        }
+    }
+    if (-not $ref) {
+        Write-ActionError "Failed to resolve REF"
+        exit 1
+    }
+    Write-ActionInfo "Resolved REF as $ref"
+    Write-ActionInfo "Resolve Repo Full Name as $repoFullName"
+
+    Write-ActionInfo "Adding Check Run"
+    $url = "https://api.github.com/repos/$repoFullName/check-runs"
+    $hdr = @{
+        Accept = 'application/vnd.github.antiope-preview+json'
+        Authorization = "token $ghToken"
+    }
+    $bdy = @{
+        name       = $reportName
+        head_sha   = $ref
+        status     = 'completed'
+        conclusion = 'neutral'
+        output     = @{
+            title   = $reportTitle
+            summary = "This run completed at ``$([datetime]::Now)``"
+            text    = $reportData
+        }
+    }
+    Invoke-WebRequest -Headers $hdr $url -Method Post -Body ($bdy | ConvertTo-Json)
+}
+
 
 
 # Commenting out
