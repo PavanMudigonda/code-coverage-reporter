@@ -584,7 +584,8 @@ function Publish-ToCheckRun {
     }
 
     if ($inputs.skip_check_run -ne $true) {
-        Publish-ToCheckRun -ReportData $reportData -ReportName $report_name -ReportTitle $report_title
+#        Publish-ToCheckRun -ReportData $reportData -ReportName $report_name -ReportTitle $report_title
+        Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
         if ($coverage_results_path) {
             Publish-ToCheckRun -ReportData $coverageSummaryData -ReportName $coverage_report_name -ReportTitle $coverage_report_title
         }
