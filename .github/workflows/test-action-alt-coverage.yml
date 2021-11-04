@@ -20,7 +20,8 @@ jobs:
         id: test-code-cov
         uses: ./
         with:
-          coverage_results_file_path: jacoco-report/example.jacoco.xml
+          code_coverage_file_path: jacoco-report/example.jacoco.xml
           coverage_report_name: Jacoco-code-coverage
           coverage_report_title: Jacco code coverage
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_check_run: false
