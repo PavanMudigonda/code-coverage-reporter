@@ -49,6 +49,7 @@ $inputs = @{
     coverage_gist_badge_label = Get-ActionInput coverage_gist_badge_label
     tests_fail_step    = Get-ActionInput tests_fail_step
     code_coverage_file_path = Get-ActionInput code_coverage_file_path
+    code_coverage_provider = Get-ActionInput code_coverage_provider
 
 }
 
