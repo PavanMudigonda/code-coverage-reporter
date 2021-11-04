@@ -7,6 +7,11 @@ description: |
 ## You also use these to identify the *required* inputs.
 inputs:
 
+  code_coverage_provider:
+    description: |
+      Code coverage Provider name. Either JaCoCo, Corbetura, ICov, Istanbul
+    required: true
+
   code_coverage_file_path:
     description: |
       Path to the Code coverage file

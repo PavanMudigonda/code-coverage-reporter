@@ -20,6 +20,7 @@ jobs:
         id: test-code-cov
         uses: ./
         with:
+          code_coverage_provider: jacoco
           code_coverage_file_path: jacoco-report/example.jacoco.xml
           coverage_report_name: Jacoco-code-coverage
           coverage_report_title: Jacco code coverage
